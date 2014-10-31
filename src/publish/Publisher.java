@@ -41,7 +41,6 @@ public class Publisher extends Thread implements IPublisher {
     @Override
     public void publish(String messageStr) {
         Message message = new Message(topic, messageStr);
-
         try {
             this.oos.writeObject(message);
         } catch (IOException ex) {

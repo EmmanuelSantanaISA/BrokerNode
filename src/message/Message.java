@@ -1,6 +1,6 @@
 package message;
 
-import broker.Subscription;
+
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -13,10 +13,9 @@ import broker.Subscription;
  */
 public class Message {
 
-    private String ipSource;
-    private int portSource;
+    private String sourceIpAddress;
+    private int sourcePort;
     private MessageType messageType;
-    private Subscription subscription;
     private String topic;
     private String message;
 
@@ -26,25 +25,24 @@ public class Message {
         this.messageType = MessageType.PUBLISH;
     }
 
-    public Message(Subscription subscription, MessageType messageType) {
-        this.subscription = subscription;
+    public Message(MessageType messageType) {
         this.messageType = messageType;
     }
 
     public String getIpSource() {
-        return ipSource;
+        return sourceIpAddress;
     }
 
     public void setIpSource(String ipSource) {
-        this.ipSource = ipSource;
+        this.sourceIpAddress = ipSource;
     }
 
     public int getPortSource() {
-        return portSource;
+        return sourcePort;
     }
 
     public void setPortSource(int portSource) {
-        this.portSource = portSource;
+        this.sourcePort = portSource;
     }
 
     public MessageType getMessageType() {
@@ -53,14 +51,6 @@ public class Message {
 
     public void setMessageType(MessageType messageType) {
         this.messageType = messageType;
-    }
-
-    public Subscription getSubscription() {
-        return subscription;
-    }
-
-    public void setSubscription(Subscription subscription) {
-        this.subscription = subscription;
     }
 
     public String getTopic() {

@@ -3,21 +3,25 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package broker;
+package message;
 
 /**
  *
  * @author emmanuelsantana
  */
 public class Subscription {
-
+    private String fromIpAddress;
     private String ipAddress;
     private int port;
     private String topic;
+    private boolean unSubscribe;
 
-    @Override
-    public String toString() {
-        return "Ip Address: " + ipAddress + "\nPort: " + port + "\nTopic: " + topic;
+    public String getFromIpAddress() {
+        return fromIpAddress;
+    }
+
+    public void setFromIpAddress(String fromIpAddress) {
+        this.fromIpAddress = fromIpAddress;
     }
 
     public String getIpAddress() {
@@ -28,14 +32,6 @@ public class Subscription {
         this.ipAddress = ipAddress;
     }
 
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
     public String getTopic() {
         return topic;
     }
@@ -44,4 +40,20 @@ public class Subscription {
         this.topic = topic;
     }
 
+    public boolean isUnSubscribe() {
+        return unSubscribe;
+    }
+
+    public void setUnSubscribe(boolean unSubscribe) {
+        this.unSubscribe = unSubscribe;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+    
 }

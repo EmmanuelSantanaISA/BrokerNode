@@ -5,7 +5,7 @@
  */
 package subscribe;
 
-import message.Message;
+import message.Subscription;
 
 /**
  *
@@ -13,5 +13,6 @@ import message.Message;
  */
 public interface ISubscriber {
 
-    public void getPublication(Message message);
+    public void subscribe(Subscription subscription);
+    public void unSubscribe(Subscription subscription);
 }

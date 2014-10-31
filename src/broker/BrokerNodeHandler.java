@@ -15,6 +15,7 @@ import java.net.Socket;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import message.Subscription;
 
 /**
  *
@@ -41,15 +42,17 @@ class BrokerNodeHandler extends Thread {
         this.start();
     }
 
-    public void forwardMessage(Message message) {
+    public void forwardMessage(Subscription subscription) {
 
         List<BrokerNode> neighbors = this.parent.getNeighbors();
 
         for (BrokerNode brokerNode : neighbors) {
             try {
-                Socket fwSocket = new Socket(brokerNode.getIpAddress(), brokerNode.getPort());
-                ObjectOutputStream dos = new ObjectOutputStream(fwSocket.getOutputStream());
-                dos.writeObject(message);
+                Socket fwSocket;
+                fwSocket = new Socket(brokerNode.getIpAddress(), brokerNode.getPort());
+                ObjectOutputStream dos;
+                dos = new ObjectOutputStream(fwSocket.getOutputStream());
+                dos.writeObject(subscription);
                 dos.close();
                 fwSocket.close();
             } catch (IOException ex) {
@@ -65,11 +68,12 @@ class BrokerNodeHandler extends Thread {
             List<Subscription> subscriptions = this.parent.getSubscriptionByTopic(message.getTopic());
             for (Subscription subscription : subscriptions) {
                 try {
-                    System.out.println("Enviando mensaje a: " + subscription.toString());
-                    Socket socket = new Socket(subscription.getIpAddress(), subscription.getPort());
-                    ObjectOutputStream dos = new ObjectOutputStream(socket.getOutputStream());
+                    System.out.println("Enviando mensaje a: " + subscription.getIpAddress());
+                    Socket newSocket;
+                    newSocket = new Socket(subscription.getIpAddress(), subscription.getPort());
+                    ObjectOutputStream dos = new ObjectOutputStream(newSocket.getOutputStream());
                     dos.writeObject(message);
-                    socket.close();
+                    newSocket.close();
                 } catch (IOException ex) {
                     System.out.println("Failed to deliver message:" + ex);
                 }
@@ -79,34 +83,36 @@ class BrokerNodeHandler extends Thread {
         }
     }
 
-    public boolean addSubscription(Message message) {
-        return this.parent.addSubscription(message.getSubscription());
+    public boolean addSubscription(Subscription subscription) {
+        return this.parent.addSubscription(subscription);
     }
 
     @Override
     public void run() {
+        boolean forward = false;
+        Object message;
+        Subscription subscription = null;
         try {
-            boolean forward = false;
-            Message message = (Message) this.ois.readObject();
-            switch (message.getMessageType()) {
-                case BROKER:
+            message = this.ois.readObject();
+            if (message instanceof Message) {
+                Message msg = (Message) message;
+                matchSubscriptions(msg);
+            } else if (message instanceof Subscription) {
+                subscription = (Subscription) message;
+                System.out.println("Subscription from " + subscription.getIpAddress());
+                forward = addSubscription(subscription);
+            }
 
-                    break;
-                case PUBLISH:
-                    matchSubscriptions(message);
-                    break;
-                case SUBSCRIBE:
-                    System.out.println("Subscription from " + message.getIpSource());
-                    forward = addSubscription(message);
-                    break;
-            }
-            if (forward) {
-                message.setIpSource(this.socket.getInetAddress().getHostAddress());
-                forwardMessage(message);
-            }
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(BrokerNodeHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
+        if (forward) {
+            String hostAddress;
+            hostAddress = this.socket.getInetAddress().getHostAddress();
+            subscription.setFromIpAddress(hostAddress);
+            forwardMessage(subscription);
+        }
+
     }
 
 }

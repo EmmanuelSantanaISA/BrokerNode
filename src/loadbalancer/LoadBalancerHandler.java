@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import message.Message;
+import message.Subscription;
 
 /**
  *
@@ -32,13 +32,13 @@ public class LoadBalancerHandler extends Thread {
         this.start();
     }
 
-    private void sendToBroker(Message message) {
+    private void sendToBroker(Subscription subscription) {
         BrokerNode randomBroker = this.loadBalancer.getRandomBroker();
-        System.out.println("Selected Broker: Ip Address- " + randomBroker.getPort() + " Port- " + randomBroker.getPort());
+        System.out.println("Selected Broker: Ip Address- " + randomBroker.getIpAddress()+ " Port- " + randomBroker.getPort());
         try {
             try (Socket broker = new Socket(randomBroker.getIpAddress(), randomBroker.getPort())) {
                 ObjectOutputStream dos = new ObjectOutputStream(broker.getOutputStream());
-                dos.writeObject(message);
+                dos.writeObject(subscription);
             }
         } catch (IOException ex) {
             System.err.println("Failed to asign broker:" + ex);
@@ -48,8 +48,8 @@ public class LoadBalancerHandler extends Thread {
     @Override
     public void run() {
         try {
-            Message message = (Message) this.ois.readObject();
-            sendToBroker(message);
+            Subscription subscription = (Subscription) this.ois.readObject();
+            sendToBroker(subscription);
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Thread.- Failed to read message: " + e);
         }
